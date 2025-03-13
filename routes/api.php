@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\JobOfferController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,20 @@ Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index']);
     Route::post('/', [CategoryController::class, 'store']);
     Route::get('/{id}', [CategoryController::class, 'show']);
-    Route::put('/{id}', [CategoryController::class, 'update']);
+    Route::put('/edit/{id}', [CategoryController::class, 'update']);
     Route::delete('/{id}', [CategoryController::class, 'destroy']);
 });
+
+
+
+    Route::prefix('job_offers')->group(function () {
+        Route::get('/', [JobOfferController::class, 'index']);
+        Route::post('/', [JobOfferController::class, 'store']);
+        Route::get('/my-job-offers', [JobOfferController::class, 'myJobOffers']);
+        Route::get('/category/{categoryId}', [JobOfferController::class, 'getByCategory']);
+        Route::get('/{id}', [JobOfferController::class, 'show']);
+        Route::put('/{id}', [JobOfferController::class, 'update']);
+        Route::patch('/{id}', [JobOfferController::class, 'update']); 
+        Route::delete('/{id}', [JobOfferController::class, 'destroy']);
+    });
+

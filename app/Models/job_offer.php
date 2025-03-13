@@ -14,18 +14,23 @@ class job_offer extends Model
         'title',
         'description',
         'category_id',
-        'contract_type_id',
-        'recruiter_id',
+        'user_id',
         'location',
         'salary',
         'start_date',
         'expiration_date',
         'is_active',
+        
     ];
 
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+        
     }
 }

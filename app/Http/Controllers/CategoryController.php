@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
@@ -65,12 +66,14 @@ class CategoryController extends Controller
                 'message' => 'Category not found'
             ], 404);
         }
-
+    
+        Log::info('Request data:', $request->all());
+    
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $id,
             'description' => 'nullable|string',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -78,15 +81,19 @@ class CategoryController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
+        Log::info('Validated data:', $validator->validated());
+    
         $category->update($validator->validated());
+    
+        Log::info('Category after update:', $category->toArray());
+    
         return response()->json([
             'success' => true,
             'message' => 'Category updated successfully',
             'data' => $category
         ]);
     }
-
     public function destroy($id)
     {
         $category = Category::find($id);

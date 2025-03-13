@@ -9,19 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('job_offers', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->foreignId('category_id')->constrained()->onDelete('restrict');
-            $table->foreignId('recruiter_id')->constrained('users')->onDelete('cascade');
+            $table->string('company');
             $table->string('location');
-            $table->decimal('salary', 10, 2)->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('expiration_date')->nullable();
+            $table->float('salary')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->date('expires_at')->nullable();
+            $table->text('requirements')->nullable();
+            $table->string('contact_email');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('restrict');
             $table->timestamps();
         });
     }
@@ -32,6 +34,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('job_offers');
-        
     }
 };
