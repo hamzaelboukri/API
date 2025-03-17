@@ -155,8 +155,8 @@ class JobOfferController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Job offer not found'
-            ], 404);
-        }
+                ], 404);
+            }
 
         if ($jobOffer->user_id !== Auth::id()) {
             return response()->json([
@@ -169,7 +169,7 @@ class JobOfferController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Job offer deleted successfully'
-        ]);
+        ]);                   
     }
 
     public function myJobOffers()
