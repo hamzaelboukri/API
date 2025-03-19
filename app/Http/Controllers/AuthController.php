@@ -4,99 +4,94 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Validator as FacadesValidator;
+use Tymon\JWTAuth\Contracts\Providers\JWT;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
-class AuthController extends Controller
+use function Laravel\Prompts\password;
+
+class Authcontroller extends Controller
 {
-    /**
-     * Create Usera
-     * @param Request $request
-     * @return User a
-     */
-    public function createUser(Request $request)
-    {
-        try {
-            //Validated
-            $validateUser = Validator::make($request->all(), 
-            [
-                'name' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required'
+    public function createUser(Request $request){
+            try {
+             $ValditeUsers = FacadesValidator::make($request->all(),[
+                'name'=> 'require',
+                'email'=>'required|email|unique:users,email',
+                'password'=>'required|min6'
             ]);
 
-            if($validateUser->fails()){
+            if ($ValditeUsers->failed()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'validation error',
-                    'errors' => $validateUser->errors()
+                    'errors' => $ValditeUsers->errors()
                 ], 401);
             }
-
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password)
-            ]);
-
-            return response()->json([
-                'status' => true,
+            $User = User::created([
+                'name'=> $request->name,
+                'email'=> $request->email,
+                'password'=>Hash::make( $request->password),
+                ]);
+              
+               return response()->json([
+                'status' => false,
                 'message' => 'User Created Successfully',
-                'token' => $user->createToken("API TOKEN")->plainTextToken
-            ], 200);
+               ]);
 
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => false,
-                'message' => $th->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Login The User
-     * @param Request $request
-     * @return User
-     */
-    public function loginUser(Request $request)
-    {
-        try {
-            $validateUser = Validator::make($request->all(), 
-            [
-                'email' => 'required|email',
-                'password' => 'required'
-            ]);
-
-            if($validateUser->fails()){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'validation error',
-                    'errors' => $validateUser->errors()
-                ], 401);
+               $token=JWTAuth::FromUser($User);
+                
+            } 
+                catch (\Throwable $th) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => $th->getMessage()
+                    ], 500);
+                }
             }
 
-            if(!Auth::attempt($request->only(['email', 'password']))){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Email & Password does not match with our record.',
-                ], 401);
-            }
 
-            $user = User::where('email', $request->email)->first();
+public function login(Request $request){
 
-            return response()->json([
-                'status' => true,
-                'message' => 'User Logged In Successfully',
-                'token' => $user->createToken("API TOKEN")->plainTextToken
-            ], 200);
+    $credetinel=$request->only('email','password');
 
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => false,
-                'message' => $th->getMessage()
-            ], 500);
-        }
-    }
+
+if(!$token=JWTAuth::attempt($credetinel)){
+    return response()->json([
+        'eruer'=>'Unauthorized' 
+    ],401 );
+}
+return response()->json(['token' => $token]);
+
+}
+
+
+
+
+
+public function me()
+{
+    return response()->json(Auth::user()); 
+}
+
+
+public function logout()
+{
+    JWTAuth::invalidate(JWTAuth::getToken()); 
+    return response()->json(['message' => 'Logged out successfully']);  
+}
+
+public function refresh()
+{
+    return response()->json([
+        'user' => Auth::user(),
+        'authorisation' => [
+            'token' => Auth::refresh(),
+            'type' => 'bearer',
+        ]
+    ]);
+}
+
+
 }
