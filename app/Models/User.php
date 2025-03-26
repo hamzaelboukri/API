@@ -13,27 +13,20 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable ;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    use Notifiable;
+
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
+    public function competences()
+    {
+        return $this->belongsToMany(Competence::class);
+    }
     /**
      * The attributes that should be cast.
      *
@@ -44,16 +37,17 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
-    public function job_offer(){
+ 
+    public function jobOffers()
+{
+    return $this->hasMany(job_offer::class, 'user_id');
+}
 
-        return $this->hasMany(job_offer::class);
-        
-    }
 
-    public function role(){
-        return $this->hasMany(role::class);
-
-    }
+public function roles()
+{
+    return $this->belongsToMany(Role::class);
+}
 
 
        // Rest omitted for brevity

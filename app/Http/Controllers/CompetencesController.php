@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Competence;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CompetenceController extends Controller
 {
@@ -37,9 +36,6 @@ class CompetenceController extends Controller
             'category' => 'nullable|string|max:255',
         ]);
 
-        // Générer un slug unique
-        $validated['slug'] = Str::slug($validated['name']);
-        
         $competence = Competence::create($validated);
         
         return response()->json([
@@ -78,11 +74,6 @@ class CompetenceController extends Controller
             'category' => 'nullable|string|max:255',
         ]);
 
-        // Mettre à jour le slug si le nom a changé
-        if (isset($validated['name']) && $validated['name'] !== $competence->name) {
-            $validated['slug'] = Str::slug($validated['name']);
-        }
-        
         $competence->update($validated);
         
         return response()->json([
